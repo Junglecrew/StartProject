@@ -1,2 +1,3 @@
-# StartProject
-Starting Build
+# Стартовая сборка проекта
+Ввести в консоли
+	npm i
