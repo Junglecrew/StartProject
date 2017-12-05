@@ -5,6 +5,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jquery" : "latest",
+    "node-normalize-scss": "latest"
+  },
+  "devDependencies": {
     "browser-sync": "^2.2.3",
     "gulp": "^3.8.11",
     "gulp-autoprefixer": "^4.0.0",
@@ -17,7 +21,12 @@
     "gulp-watch": "^4.1.1",
     "imagemin-pngquant": "^5.0.1",
     "rimraf": "^2.3.1",
-    "gulp-pug": "^3.3.0"
+    "gulp-pug": "^3.3.0",
+    "webpack": "latest",
+    "gulp-svg-sprite": "latest",
+    "gulp-svgmin": "latest",
+    "gulp-cheerio": "latest",
+    "gulp-replace": "latest"
   },
   "main": "gulpfile.js",
   "scripts": {

@@ -13,6 +13,10 @@ var gulp = require('gulp'),
     rimraf = require('rimraf'),
     browserSync = require("browser-sync"),
     pug = require('gulp-pug'),
+    svgSprite = require('gulp-svg-sprite'),
+    svgmin = require('gulp-svgmin'),
+    cheerio = require('gulp-cheerio'),
+    replace = require('gulp-replace'),
     reload = browserSync.reload;
     
 
@@ -78,11 +82,12 @@ gulp.task('js:build', function () {
 });
 
 gulp.task('style:build', function () {
-    gulp.src(path.src.style) 
+    gulp.src([path.src.style, '!src/style/sprite_template.scss']) //игнорируем шаблон для файла стилей для svg-спрайта
         .pipe(sourcemaps.init())
         .pipe(sass({
             sourceMap: true,
-            errLogToConsole: true
+            errLogToConsole: true,
+            includePaths: require('node-normalize-scss').includePaths
         }))
         .pipe(prefixer())
         .pipe(cssmin())
@@ -92,7 +97,7 @@ gulp.task('style:build', function () {
 });
 
 gulp.task('image:build', function () {
-    gulp.src(path.src.img) 
+    gulp.src([path.src.img, '!src/img/*.svg']) //игнорируем svg
         .pipe(imagemin({
             progressive: true,
             svgoPlugins: [{removeViewBox: false}],
@@ -106,6 +111,43 @@ gulp.task('image:build', function () {
 gulp.task('fonts:build', function() {
     gulp.src(path.src.fonts)
         .pipe(gulp.dest(path.build.fonts))
+});
+
+
+gulp.task('svgSpriteBuild', function () {
+    return gulp.src(path.src.img)
+    // минифицируем svg
+        .pipe(svgmin({
+            js2svg: {
+                pretty: true
+            }
+        }))
+        // удалим лишные записи
+        .pipe(cheerio({
+            run: function ($) {
+                $('[fill]').removeAttr('fill');
+                $('[stroke]').removeAttr('stroke');
+                $('[style]').removeAttr('style');
+            },
+            parserOptions: {xmlMode: true}
+        }))
+        // Устраним проблему в символом
+        .pipe(replace('&gt;', '>'))
+        // Создание самого спрайта
+        .pipe(svgSprite({
+            mode: {
+                symbol: {
+                    sprite: "../sprite.svg",
+                    render: {
+                        scss: {
+                            dest: '../../../src/style/sprite.scss',
+                            template: 'src/style/sprite_template.scss'
+                        }
+                    }
+                }
+            }
+        }))
+        .pipe(gulp.dest(path.build.img));
 });
 
 gulp.task('build', [
